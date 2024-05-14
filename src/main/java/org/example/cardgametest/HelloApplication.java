@@ -4,39 +4,53 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.example.cardgametest.Card.Card;
+import org.example.cardgametest.Card.attackCard;
+import org.example.cardgametest.Card.defenseCard;
+import org.example.cardgametest.Effects.Placeholder_Attackeffect;
+import org.example.cardgametest.Effects.Placeholder_Defenseeffect;
+import org.example.cardgametest.Effects.effect;
+import org.example.cardgametest.Entities.Enemy;
+import org.example.cardgametest.Entities.Player;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class HelloApplication extends Application {
-    private static final int GRID_SIZE = 5;
-    private static final double CARD_WIDTH = 150;
-    private static final double CARD_HEIGHT = 200;
-    private static final double SPACING = 5;
+    public static final int GRID_SIZE = 5;
+    public static final double CARD_WIDTH = 150;
+    public static final double CARD_HEIGHT = 200;
+    public static final double SPACING = 5;
+
+    private boolean playerTurn = true; //Whose turn it is
+    public static boolean isAttackPhase = false;
+
+    private boolean playerPlacedCards = false;
+    private boolean enemyPlacedCards = false;
 
     public static void main(String[] args) {
         launch();
@@ -51,29 +65,118 @@ public class HelloApplication extends Application {
         Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
         ImageView kaardipakkview = new ImageView(pakk);
 
+        /*
         GridPane gameBoard = new GridPane();
         gameBoard.setHgap(SPACING);
         gameBoard.setVgap(SPACING);
         gameBoard.setLayoutX(50);
         gameBoard.setLayoutY(150);
+        */
+
+        GridPane playerGrid = new GridPane();
+        GridPane enemyGrid = new GridPane();
+        playerGrid.setHgap(SPACING);
+        playerGrid.setVgap(SPACING);
+        enemyGrid.setHgap(SPACING);
+        enemyGrid.setVgap(SPACING);
+
+        playerGrid.setLayoutX(50); // Adjust the X position as needed
+        playerGrid.setLayoutY(400); // Adjust the Y position as needed
+        enemyGrid.setLayoutX(50); // Adjust the X position as needed
+        enemyGrid.setLayoutY(50);
 
         // Create a player object
-        Player player = new Player(100, 4);
+        Player player = new Player(100, 20);
         Enemy enemy = new Enemy(100, 4);
+
+        // Create cardstacks for attacking and defending
+        List<attackCard> attackCards = new ArrayList<>();
+        List<defenseCard> defenseCards = new ArrayList<>();
+
+        List<effect> AttackEffects = new ArrayList<>();
+        //AttackEffects.add()
+        List<effect> DefenseEffects = new ArrayList<>();
+        AttackEffects.add(new Placeholder_Attackeffect("Much damage!"));
+        DefenseEffects.add(new Placeholder_Defenseeffect("Much no damage!"));
+
+        // kaardinimede list
+        String[] nimedcollec = {"Stab", "Kick", "Slash", "Punch", "Poke", "Hit", "Bash", "Deadly maul", "Ambush", "Backstab"};
+        List<String> ründenimed = new ArrayList<>(Arrays.asList(nimedcollec));
+
+        String[] vnimedcollec = {"Obliterate", "Annihilate", "Disintegration ray", "Collapse", "Marked for death"};
+        List<String> vingedründenimed = new ArrayList<>(Arrays.asList(vnimedcollec));
+
+        // kaardinimede list
+        String[] knimedcollec = {"Defend", "Shield", "Barrier", "Block", "Dodge", "Barricade", "Endure"};
+        List<String> kaitsenimed = new ArrayList<>(Arrays.asList(knimedcollec));
+
+        String[] kvnimedcollec = {"Paladin's favor", "Absolute cancel", "Saving grace", "Grit", "Unbreakable fortress"};
+        List<String> kvingedkaitsenimed = new ArrayList<>(Arrays.asList(kvnimedcollec));
+
+        int attack;
+        int defense;
+        int attackenergy;
+        int defenseenergy;
+        double kaseffekt;
+
+        for (int i = 0; i < 32; i++) {
+            attack = (int) (Math.random() * 10) + 1;
+            defense = (int) (Math.random() * 10) + 1;
+            kaseffekt = Math.random() * 10;
+            Collections.shuffle(ründenimed);
+            Collections.shuffle(vingedründenimed);
+            Collections.shuffle(kaitsenimed);
+            Collections.shuffle(kvingedkaitsenimed);
+            attackCard a;
+            defenseCard b;
+            attackenergy = attack / 2;
+            defenseenergy = defense / 2;
+            Collections.shuffle(AttackEffects);
+            Collections.shuffle(DefenseEffects);
+            if (attack <= 5) {
+                if (kaseffekt <= 2) {
+                    a = new attackCard(ründenimed.getFirst(), "Yap Yap Yap", AttackEffects.getFirst().getName(), attackenergy, attack, "Attack: " + attack, playerGrid);
+                } else {
+                    a = new attackCard(ründenimed.getFirst(), "Yap Yap Yap", "No effect", attackenergy, attack, "Attack: " + attack, playerGrid);
+                }
+            } else {
+                if (kaseffekt <= 5) {
+                    a = new attackCard(vingedründenimed.getFirst(), "Yap Yap Yap", AttackEffects.getFirst().getName(), attackenergy, attack, "Attack: " + attack, playerGrid);
+                } else {
+                    a = new attackCard(vingedründenimed.getFirst(), "Yap Yap Yap", "No effect", attackenergy, attack, "Attack: " + attack, playerGrid);
+                }
+            }
+            if (defense <= 5) {
+                if (kaseffekt <= 2) {
+                    b = new defenseCard(kaitsenimed.getFirst(), "Yap Yap Yap", DefenseEffects.getFirst().getName(), defenseenergy, defense, "Defense: " + defense, playerGrid);
+                } else {
+                    b = new defenseCard(kaitsenimed.getFirst(), "Yap Yap Yap", "No effect", defenseenergy, defense, "Defense: " + defense, playerGrid);
+                }
+            } else {
+                if (kaseffekt <= 5) {
+                    b = new defenseCard(kvingedkaitsenimed.getFirst(), "Yap Yap Yap", DefenseEffects.getFirst().getName(), defenseenergy, defense, "Defense: " + defense, playerGrid);
+                } else {
+                    b = new defenseCard(kvingedkaitsenimed.getFirst(), "Yap Yap Yap", "No effect", defenseenergy, defense, "Defense: " + defense, playerGrid);
+                }
+            }
+            attackCards.add(a);
+            defenseCards.add(b);
+
+        }
 
         // Create a list to hold all available cards
         List<Card> allCards = new ArrayList<>();
-        allCards.add(new skillCard("Skill Card 1", "Description of Skill Card 1", 1, gameBoard));
-        allCards.add(new defenseCard("Defense Card 1", "Description of Defense Card 1", 2, gameBoard));
-        allCards.add(new summonCard("Summon Card 1", "Description of Summon Card 1", 3, gameBoard));
-        allCards.add(new attackCard("Attack Card 1", "Description of Attack Card 1", 4, gameBoard));
-        allCards.add(new attackCard("Attack Card 2", "Description of Attack Card 2", 4, gameBoard));
-        allCards.add(new attackCard("Attack Card 3", "Description of Attack Card 3", 4, gameBoard));
-        allCards.add(new attackCard("Attack Card 4", "Description of Attack Card 4", 4, gameBoard));
-        allCards.add(new attackCard("Attack Card 5", "Description of Attack Card 5", 4, gameBoard));
+        allCards.addAll(attackCards);
+        allCards.addAll(defenseCards);
+
+        allCards.addAll(attackCards);
+        allCards.addAll(defenseCards);
 
         player.generateRandomDeck(allCards);
-        player.generateRandomHand(allCards);
+        player.generateRandomHand();
+        player.giveCardFunctionality(grupp, scene, player);
+
+        enemy.generateRandomDeck(enemy.generateEnemyCards(allCards, enemyGrid));
 
         //Setup player and enemy stats
         Text playerHpText = new Text("Player HP: " + player.getHp());
@@ -94,7 +197,17 @@ public class HelloApplication extends Application {
         // Update enemy's HP text
         enemyHpText.textProperty().bind(Bindings.concat("Enemy HP: ").concat(enemy.hpProperty()));
 
+        //Update the player's energy
+        Text playerEnergyText = new Text("Player Energy: " + player.getEnergy());
+        playerEnergyText.setFont(Font.font("Arial", 18));
+        playerEnergyText.setFill(Color.WHITE);
+        playerEnergyText.setX(380);
+        playerEnergyText.setY(20);
+
+        playerEnergyText.textProperty().bind(Bindings.concat("Player Energy: ").concat(player.energyProperty()));
+
         //Setup the cards
+        /*
         List<Card> hand = player.getHand();
         double spacing = (scene.getWidth() - (CARD_WIDTH * hand.size())) / (hand.size() + 1);
         for (int i = 0; i < hand.size(); i++) {
@@ -106,19 +219,67 @@ public class HelloApplication extends Application {
 
             card.handleMouseHover();
             card.getGroup().setOnMouseClicked(e -> card.handleMouseClicked(e, SPACING, CARD_HEIGHT, CARD_WIDTH, GRID_SIZE, player));
-        }
+        }*/
 
-        //Press F to display cards
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.F) {
-                System.out.println("Player's Deck:");
-                for (Card card : player.getDeck()) {
-                    System.out.println(card.getName());
+        // Next Phase Button
+        Button nextPhaseButton = new Button("NEXT PHASE");
+        nextPhaseButton.setFont(Font.font(18));
+        nextPhaseButton.setLayoutX(scene.getWidth() - 150);
+        nextPhaseButton.setLayoutY(20);
+        nextPhaseButton.setDisable(true); // Initially disable the button
+
+        nextPhaseButton.setOnAction(event -> {
+            if (playerTurn) {
+                // Player's turn
+                nextPhaseButton.setDisable(true);
+                if (!isAttackPhase) {
+                    // If it's not the attack phase, play the enemy turn
+                    playEnemyTurn(enemyGrid, enemy, player);
+                    Timeline returnToPlayerTurnTimeline = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
+                        playerTurn = true;
+                        if (playerPlacedCards && enemyPlacedCards) {
+                            // If both player and enemy have placed cards, transition to attack phase
+                            isAttackPhase = true;
+                            enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
+                        } else {
+                            enablePlayerTurn(player);
+                        }
+                    }));
+                    returnToPlayerTurnTimeline.setCycleCount(1);
+                    returnToPlayerTurnTimeline.play();
+                } else {
+                    // If it's the attack phase, enable the player's attack phase
+                    isAttackPhase = false;
+                    enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                 }
-                System.out.println("\nPlayer's Hand:");
-                for (Card card : player.getHand()) {
-                    System.out.println(card.getName());
+            } else {
+                // Enemy's turn
+                nextPhaseButton.setDisable(true);
+                if (!isAttackPhase) {
+                    // If it's not the attack phase, play the enemy turn
+                    playerTurn = true;
+                    if (playerPlacedCards && enemyPlacedCards) {
+                        // If both player and enemy have placed cards, transition to attack phase
+                        isAttackPhase = true;
+                        enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
+                        nextPhaseButton.setDisable(true);
+                    } else {
+                        enablePlayerTurn(player);
+                    }
+                } else {
+                    // If it's the attack phase, enable the player's attack phase
+                    isAttackPhase = false;
+                    enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                 }
+            }
+        });
+
+        enablePlayerTurn(player); //Player goes first
+
+        // Enable the button only if the player has placed exactly 4 cards
+        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (playerTurn && player.getNumberOfCardsOnGrid() == 4 && !isAttackPhase) {
+                nextPhaseButton.setDisable(false); // Enable button if exactly 4 cards are placed
             }
         });
 
@@ -132,7 +293,7 @@ public class HelloApplication extends Application {
 
         kaardipakkview.setOnMouseClicked(event -> {
             if (player.getHand().isEmpty() && !player.getDeck().isEmpty()) {
-                player.generateRandomHand(allCards);
+                player.generateRandomHand();
                 List<Card> newHand = player.getHand();
                 double spacing2 = (scene.getWidth() - (CARD_WIDTH * newHand.size())) / (newHand.size() + 1);
                 for (int i = 0; i < newHand.size(); i++) {
@@ -148,299 +309,280 @@ public class HelloApplication extends Application {
             }
         });
 
-        grupp.getChildren().addAll(kaardipakkview, gameBoard, playerHpText, enemyHpText);
+        grupp.getChildren().addAll(nextPhaseButton, kaardipakkview, playerGrid, enemyGrid, playerHpText, enemyHpText, playerEnergyText);
 
-        scene.setFill(Color.DEEPSKYBLUE);
-        stage.setTitle("Card Game");
-        stage.setScene(scene);
+        Font font = Font.font(32);
+        Image img = new Image(new FileInputStream("nupp.png"));
+        Image img2 = new Image(new FileInputStream("tiitel.png"));
+
+        ImageView view2 = new ImageView(img2);
+        view2.setPreserveRatio(true);
+        view2.setFitHeight(0);
+
+        HBox pilt = new HBox();
+        pilt.getChildren().add(view2);
+        pilt.setAlignment(Pos.TOP_CENTER);
+
+        ImageView view = new ImageView(img);
+
+        view.setPreserveRatio(true);
+
+        Button start = new Button("");
+        start.setFont(font);
+        start.setOnAction(event -> {
+            scene.setFill(Color.DEEPSKYBLUE);
+            stage.setTitle("Card Game");
+            stage.setScene(scene);
+            stage.show();
+        });
+
+        start.setPrefSize(430, 300);
+        start.setGraphic(view);
+        start.setPadding(Insets.EMPTY);
+
+        VBox vbox = new VBox(50, start);
+        vbox.setTranslateX(0);
+        vbox.setTranslateY(50);
+        vbox.setSpacing(0);
+        vbox.setAlignment(Pos.CENTER);
+
+        StackPane stackPane = new StackPane();
+
+        stackPane.getChildren().add(pilt);
+        stackPane.getChildren().add(vbox);
+        stackPane.setStyle("-fx-background-color:BLACK");
+
+        Scene menuscene = new Scene(stackPane, 1000, 700);
+
+        stage.setResizable(false);
+        stage.setTitle("Main menu");
+        stage.setScene(menuscene);
         stage.show();
     }
-}
 
-abstract class Card {
-    private final String name;
-    private final String description;
-    private final int energyCost;
-
-    private final Group group;
-    private final GridPane gameBoard;
-
-    private Popup popup;
-
-    public Card(String name, String description, int energyCost, GridPane gameBoard) {
-        this.gameBoard = gameBoard;
-        this.name = name;
-        this.description = description;
-        this.energyCost = energyCost;
-
-        //Setup the card
-        Rectangle rectangle = new Rectangle(0, 0, 150, 200);
-        rectangle.setFill(Color.WHITE);
-        rectangle.setStroke(Color.BLACK);
-
-        Text nameText = new Text(name);
-        nameText.setFont(Font.font("Arial", 14));
-        nameText.setLayoutX(10);
-        nameText.setLayoutY(20);
-
-        Text energyCostText = new Text("Cost: " + energyCost);
-        energyCostText.setFont(Font.font("Arial", 12));
-        energyCostText.setLayoutX(10);
-        energyCostText.setLayoutY(180);
-
-        group = new Group(rectangle, nameText, energyCostText);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int getEnergyCost() {
-        return energyCost;
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setPosition(double x, double y) {
-        group.setLayoutX(x);
-        group.setLayoutY(y);
-    }
-
-    public void addToGroup(Group parentGroup) {
-        parentGroup.getChildren().add(group);
-    }
-
-    private void showPopUpWindow() {
-        popup = new Popup();
-        VBox popUpContent = new VBox();
-        popUpContent.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-padding: 10px;");
-        popUpContent.setAlignment(Pos.CENTER);
-
-        Text nameText = new Text(this.name);
-        nameText.setFont(Font.font("Arial", 14));
-
-        Text descriptionText = new Text(this.description);
-        descriptionText.setFont(Font.font("Arial", 12));
-
-        Text energyCostText = new Text("Cost: " + this.energyCost);
-        energyCostText.setFont(Font.font("Arial", 12));
-
-        popUpContent.getChildren().addAll(nameText, descriptionText, energyCostText);
-
-        popup.getContent().addAll(popUpContent);
-        popup.setAutoHide(true);
-
-        double screenWidth = group.getScene().getWindow().getWidth();
-        double popupWidth = 200;
-        double x = screenWidth - popupWidth + 100;
-        double y = 20;
-
-        popup.show(group.getScene().getWindow(), x, y);
-    }
-
-    public void handleMouseHover() {
-        Timeline timelineEntered = new Timeline(new KeyFrame(Duration.seconds(0.5), event -> showPopUpWindow()));
-        timelineEntered.setCycleCount(1);
-
-        group.setOnMouseExited(e -> {
-            unhighlight();
-            timelineEntered.stop();
-        });
-
-        group.setOnMouseEntered(e -> {
-            highlight();
-            timelineEntered.play();
-        });
-    }
-
-    public void handleMouseClicked(MouseEvent event, double spacing, double cardHeight, double cardWidth, int gridSize, Player player) {
-        int columnIndex = (int) (event.getX() / (cardWidth + spacing));
-        int rowIndex = (int) (event.getY() / (cardHeight + spacing));
-
-        Node existingNode = getNodeByRowColumnIndex(rowIndex, columnIndex);
-        if (existingNode == null) {
-            // Remove the card from the player's hand
-            player.getHand().remove(this);
-
-            // Check if the card is already present in the gameBoard
-            if (!gameBoard.getChildren().contains(group)) {
-                gameBoard.getChildren().add(group);
-                GridPane.setColumnIndex(group, columnIndex);
-                GridPane.setRowIndex(group, rowIndex);
-            }
-        } else {
-            for (int i = 0; i < gridSize; i++) {
-                for (int j = 0; j < gridSize; j++) {
-                    if (getNodeByRowColumnIndex(i, j) == null) {
-                        // Remove the card from the player's hand
-                        player.getHand().remove(this);
-
-                        // Check if the card is already present in the gameBoard
-                        if (!gameBoard.getChildren().contains(group)) {
-                            gameBoard.getChildren().add(group);
-                            GridPane.setColumnIndex(group, j);
-                            GridPane.setRowIndex(group, i);
+    //Other methods
+    private void enablePlayerTurn(Player player) {
+        System.out.println("Player turn.");
+        // Enable the player to play cards
+        for (Card card : player.getHand()) {
+            card.getGroup().setOnMouseClicked(e -> {
+                if (playerTurn) { // Allow playing cards only during player's turn
+                    card.handleMouseClicked(e, SPACING, CARD_HEIGHT, CARD_WIDTH, GRID_SIZE, player);
+                    // Check if the player has played 4 cards
+                    if (player.getNumberOfCardsOnGrid() >= 4) {
+                        // Disable further card playing
+                        for (Card c : player.getHand()) {
+                            c.getGroup().setOnMouseClicked(null);
                         }
-                        break;
                     }
                 }
-            }
+            });
         }
-
-        // Disable further clicks on the card
-        group.setOnMouseClicked(null);
+        playerPlacedCards = true;
     }
 
+    private void playEnemyTurn(GridPane enemyGrid, Enemy enemy, Player player) {
+        System.out.println("Enemy turn.");
+        int cardsToPlay = player.getNumberOfCardsOnGrid();
 
-    private Node getNodeByRowColumnIndex(final int row, final int column) {
-        Node result = null;
-        ObservableList<Node> children = gameBoard.getChildren();
+        for (int i = 0; i < cardsToPlay; i++) {
+            // Get the card to play
+            Card cardToPlay = enemy.getDeck().get(i);
+
+            // Find the next empty slot in the enemy grid
+            int row = 0;
+            int column = 0;
+            while (getNodeByRowColumnIndex(enemyGrid, row, column) != null) {
+                column++;
+                if (column >= GRID_SIZE) {
+                    column = 0;
+                    row++;
+                }
+                if (row >= GRID_SIZE) {
+                    // The grid is full, break out of the loop
+                    break;
+                }
+            }
+
+            // Add the card to the enemy grid
+            if (row < GRID_SIZE) {
+                enemyGrid.add(cardToPlay.getGroup(), column, row);
+                enemy.getPlayedCards().add(cardToPlay);
+
+            }
+        }
+        enemyPlacedCards = true;
+    }
+
+    private Node getNodeByRowColumnIndex(GridPane gridPane, int row, int column) {
+        ObservableList<Node> children = gridPane.getChildren();
 
         for (Node node : children) {
             Integer rowIndex = GridPane.getRowIndex(node);
             Integer columnIndex = GridPane.getColumnIndex(node);
 
             if (rowIndex != null && columnIndex != null && rowIndex == row && columnIndex == column) {
-                result = node;
-                break;
+                return node;
             }
         }
 
-        return result;
+        return null;
     }
 
-    public void highlight() {
-        for (Node node : group.getChildren()) {
-            if (node instanceof Rectangle rectangle) {
-                rectangle.setStroke(Color.YELLOW);
-                break;
+    private void enableAttackPhase(Player player, GridPane playerGrid, Enemy enemy, GridPane enemyGrid, Group grupp, Scene scene) {
+        System.out.println("Attack phase.");
+
+        // Disable player's ability to play cards during attack phase
+        disableCardClicks(player.getHand());
+
+        // Iterate over each node in the playerGrid
+        for (Node node : playerGrid.getChildren()) {
+            if (node instanceof Group group) {
+                for (Node cardNode : group.getChildren()) {
+                    if (cardNode instanceof Rectangle) {
+                        // Access the associated Card instance
+                        Card card = getCardFromGroup(group, player.getPlayedCards());
+                        if (card != null) {
+
+                            // Attach event listener to handle mouse clicks for played cards
+                            cardNode.setOnMouseClicked(event -> {
+                                System.out.println("Played card: " + card.getName());
+                                System.out.println("Queuing animations..."); //Here goes the visual cues of the cards
+
+                                //Enemy automatically plays a card in return
+                                Card enemyCard = enemy.getRandomCardFromPlayedCards(player);
+
+                                //Perform both the player and enemy card actions
+                                if (enemyCard != null) {
+                                    System.out.println("Enemy played card: " + enemyCard.getName());
+
+                                    //Check the combination of the played cards
+                                    //CASE 1 - Attack and attack
+                                    if (card instanceof attackCard && enemyCard instanceof attackCard) {
+                                        int playerAttack = card.getStat();
+                                        int enemyAttack = enemyCard.getStat();
+
+                                        player.setHp(player.getHp() - enemyAttack);
+                                        enemy.setHp(enemy.getHp() - playerAttack);
+
+                                        System.out.println("Player took " + enemyAttack + " damage!");
+                                        System.out.println("Enemy took " + playerAttack + " damage!");
+                                    }
+
+                                    //CASE 2 - Defense and defense
+                                    if (card instanceof defenseCard && enemyCard instanceof defenseCard) {
+                                        int playerDefense = card.getStat();
+                                        int enemyDefense = enemyCard.getStat();
+
+                                        // Sum up total defense
+                                        int totalDefense = playerDefense + enemyDefense;
+                                        player.setAddedDamage(totalDefense);
+
+                                        System.out.println("Total bonus to next upcoming attack: " + totalDefense);
+                                    }
+
+                                    //CASE 3 - Attack and defense
+                                    if ((card instanceof attackCard && enemyCard instanceof defenseCard) ||
+                                            (card instanceof defenseCard && enemyCard instanceof attackCard)) {
+                                        int playerAttack;
+                                        int enemyDefense;
+
+                                        // Determine attacker and defender
+                                        Card attacker;
+                                        Card defender;
+                                        if (card instanceof attackCard) {
+                                            attacker = card;
+                                            defender = enemyCard;
+                                        } else {
+                                            attacker = enemyCard;
+                                            defender = card;
+                                        }
+
+                                        // Calculate attack and defense stats
+                                        playerAttack = attacker.getStat();
+                                        enemyDefense = defender.getStat();
+
+                                        // Calculate damage and chip damage
+                                        int damage = (playerAttack + player.getAddedDamage() - enemyDefense);
+                                        player.setAddedDamage(0);
+
+                                        if (damage > 0) {
+                                            System.out.println("Damage dealt: " + damage);
+                                            if (attacker == card) {
+                                                // Player attacked, so enemy takes damage
+                                                enemy.setHp(enemy.getHp() - damage);
+                                                System.out.println("Enemy takes " + damage + " damage.");
+                                            } else {
+                                                // Enemy attacked, so player takes damage
+                                                player.setHp(player.getHp() - damage);
+                                                System.out.println("Player takes " + damage + " damage.");
+                                            }
+                                        } else {
+                                            System.out.println("No damage dealt.");
+                                        }
+                                    }
+
+                                    //Deal with removing the cards
+                                    playerGrid.getChildren().remove(card.getGroup());
+                                    player.getPlayedCards().remove(card);
+                                    grupp.getChildren().remove(card.getGroup());
+
+                                    enemyGrid.getChildren().remove(enemyCard.getGroup());
+                                    enemy.getPlayedCards().remove(enemyCard);
+                                    grupp.getChildren().remove(enemyCard.getGroup());
+
+                                }
+
+                                /*
+                                System.out.println(player.getPlayedCards());
+                                System.out.println(player.getPlayedCards().size());
+
+                                System.out.println(enemy.getPlayedCards());
+                                System.out.println(enemy.getPlayedCards().size());*/
+
+                                //Check if the grid is now empty, attackPhase is over
+                                if (player.getPlayedCards().isEmpty() && enemy.getPlayedCards().isEmpty()) {
+                                    isAttackPhase = false;
+                                    playerPlacedCards = false;
+                                    enemyPlacedCards = false;
+                                    System.out.println("Switching back to placement phase.");
+
+                                    //Do the after-attack-phase cleanup (eg. clear lists, give mana, give new cards)
+                                    player.getPlayedCards().clear();
+                                    enemy.getPlayedCards().clear();
+
+                                    //Give back missing cards
+                                    player.generateRandomHand();
+                                    player.giveCardFunctionality(grupp, scene, player);
+
+                                    //Give back mana and update max mana
+                                    int maxManaRegainAmount = 2;
+                                    player.replenishAndIncreaseMana(maxManaRegainAmount);
+                                    player.setAddedDamage(0);
+
+                                    enablePlayerTurn(player);
+                                }
+                            });
+                        }
+                    }
+                }
             }
         }
     }
 
-    public void unhighlight() {
-        for (Node node : group.getChildren()) {
-            if (node instanceof Rectangle rectangle) {
-                rectangle.setStroke(Color.BLACK);
-                break;
+    // Helper method to get the Card object associated with a Group
+    private Card getCardFromGroup(Group group, List<Card> hand) {
+        for (Card card : hand) {
+            if (card.getGroup() == group) {
+                return card;
             }
         }
-        if (popup != null && popup.isShowing()) {
-            popup.hide();
+        return null;
+    }
+
+    private void disableCardClicks(List<Card> cards) {
+        for (Card card : cards) {
+            card.getGroup().setOnMouseClicked(null);
         }
-    }
-}
-
-class skillCard extends Card {
-    public skillCard(String name, String description, int energyCost, GridPane gameBoard) {
-        super(name, description, energyCost, gameBoard);
-    }
-}
-
-class defenseCard extends Card {
-    public defenseCard(String name, String description, int energyCost, GridPane gameBoard) {
-        super(name, description, energyCost, gameBoard);
-    }
-}
-
-class attackCard extends Card {
-    public attackCard(String name, String description, int energyCost, GridPane gameBoard) {
-        super(name, description, energyCost, gameBoard);
-    }
-}
-
-class summonCard extends Card {
-    public summonCard(String name, String description, int energyCost, GridPane gameBoard) {
-        super(name, description, energyCost, gameBoard);
-    }
-}
-
-class Player {
-    private int energy;
-    private List<Card> deck;
-    private List<Card> hand;
-
-    private IntegerProperty hp;
-
-    public Player(int hp, int energy) {
-        this.hp = new SimpleIntegerProperty(hp);
-        this.energy = energy;
-        this.deck = new ArrayList<>();
-        this.hand = new ArrayList<>();
-    }
-
-    public IntegerProperty hpProperty() {
-        return hp;
-    }
-
-    public int getHp() {
-        return hp.get();
-    }
-
-    public void setHp(int hp) {
-        this.hp.set(hp);
-    }
-
-    public int getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(int energy) {
-        this.energy = energy;
-    }
-
-    public List<Card> getDeck() {
-        return deck;
-    }
-
-    public List<Card> getHand() {
-        return hand;
-    }
-
-    public void generateRandomHand(List<Card> allCards) {
-        Collections.shuffle(deck); // Shuffle the list of all cards
-        hand.addAll(deck.subList(0, 4)); // Add the first 4 cards to the hand
-        deck.removeAll(hand); // Remove the drawn cards from the deck
-    }
-
-    public void generateRandomDeck(List<Card> allCards) {
-        deck.addAll(allCards); // Add all cards to the deck
-        Collections.shuffle(deck); // Shuffle the deck
-    }
-}
-
-class Enemy {
-    private IntegerProperty hp;
-    private int energy;
-
-    public Enemy(int hp, int energy) {
-        this.hp = new SimpleIntegerProperty(hp);
-        this.energy = energy;
-    }
-
-    public IntegerProperty hpProperty() {
-        return hp;
-    }
-
-    public int getHp() {
-        return hp.get();
-    }
-
-    public void setHp(int hp) {
-        this.hp.set(hp);
-    }
-
-    public int getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(int energy) {
-        this.energy = energy;
     }
 }
