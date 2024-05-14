@@ -18,6 +18,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -35,6 +38,7 @@ import org.example.cardgametest.Entities.Player;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,6 +68,14 @@ public class HelloApplication extends Application {
         Image pakk = new Image(new FileInputStream("pakk.png"));
         Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
         ImageView kaardipakkview = new ImageView(pakk);
+
+        Media media = new Media(Paths.get("zurka.mp3").toUri().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+
+        mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
+
+        MediaView mediaView = new MediaView(mediaPlayer);
+
 
         /*
         GridPane gameBoard = new GridPane();
@@ -309,7 +321,7 @@ public class HelloApplication extends Application {
             }
         });
 
-        grupp.getChildren().addAll(nextPhaseButton, kaardipakkview, playerGrid, enemyGrid, playerHpText, enemyHpText, playerEnergyText);
+        grupp.getChildren().addAll(nextPhaseButton, kaardipakkview, playerGrid, enemyGrid, playerHpText, enemyHpText, playerEnergyText, mediaView);
 
         Font font = Font.font(32);
         Image img = new Image(new FileInputStream("nupp.png"));
@@ -334,6 +346,7 @@ public class HelloApplication extends Application {
             stage.setTitle("Card Game");
             stage.setScene(scene);
             stage.show();
+            mediaPlayer.play();
         });
 
         start.setPrefSize(430, 300);
