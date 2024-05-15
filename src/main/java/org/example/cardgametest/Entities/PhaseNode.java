@@ -59,7 +59,7 @@ public class PhaseNode extends VBox {
 	public void startTimer(Group group, Player player, Scene scene, List<Card> cards) {
 		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2.5), event -> {
 			group.getChildren().remove(PhaseNode.this);
-			player.giveCardFunctionality(group, scene, player);
+			//player.giveCardFunctionality(group, scene, player);
 			for (Card c : cards) {
 				c.setAnimationPlaying(false);
 			}
