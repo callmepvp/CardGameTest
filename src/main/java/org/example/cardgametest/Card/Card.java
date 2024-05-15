@@ -128,8 +128,8 @@ public abstract class Card {
 
         double screenWidth = group.getScene().getWindow().getWidth();
         double popupWidth = 200;
-        double x = screenWidth - popupWidth + 100;
-        double y = 20;
+        double x = screenWidth - popupWidth + 50;
+        double y = 100;
 
         popup.show(group.getScene().getWindow(), x, y);
     }
