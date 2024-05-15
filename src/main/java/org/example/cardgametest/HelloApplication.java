@@ -623,7 +623,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    private void checkHealth(Player player, Enemy enemy) throws Exception {
+    private void checkHealth(Player player, Enemy enemy) {
         if (player.getHp() <= 0) {
             System.out.println("Player has been defeated. Exiting game...");
             Platform.exit();

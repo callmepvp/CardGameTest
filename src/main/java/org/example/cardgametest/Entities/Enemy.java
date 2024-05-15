@@ -111,7 +111,6 @@ public class Enemy {
         return enemyCards;
     }
 
-    //TODO Implement AI logic, higher weight means its more likely to be picked
     public Card getRandomCardFromPlayedCards(Player player) {
         List<Card> playedCards = getPlayedCards();
 
