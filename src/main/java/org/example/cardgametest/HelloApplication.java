@@ -72,8 +72,7 @@ public class HelloApplication extends Application {
         Image pakk = new Image(new FileInputStream("pakk.png"));
         Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
         ImageView kaardipakkview = new ImageView(pakk);
-
-        Media media = new Media(Paths.get("zurka.mp3").toUri().toString());
+        Media media = new Media(Paths.get("tavern.mp3").toUri().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(media);
 
         mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
@@ -367,6 +366,9 @@ public class HelloApplication extends Application {
 
         stackPane.getChildren().add(pilt);
         stackPane.getChildren().add(vbox);
+
+        PhaseNode phaseNode = new PhaseNode(5, true, 5, true);
+        grupp.getChildren().add(phaseNode);
 
 
         stackPane.setStyle("-fx-background-color:BLACK");
