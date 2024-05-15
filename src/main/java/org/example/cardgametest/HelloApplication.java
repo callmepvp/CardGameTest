@@ -613,7 +613,7 @@ public class HelloApplication extends Application {
 
                                         //Give back missing cards
                                         player.generateRandomHand();
-                                        player.giveCardFunctionality(grupp, scene, player);
+                                        //player.giveCardFunctionality(grupp, scene, player);
 
                                         //Give back mana and update max mana
                                         int maxManaRegainAmount = 2;
