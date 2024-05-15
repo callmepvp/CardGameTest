@@ -281,19 +281,7 @@ public class HelloApplication extends Application {
 
         kaardipakkview.setOnMouseClicked(event -> {
             if (player.getHand().isEmpty() && !player.getDeck().isEmpty()) {
-                player.generateRandomHand();
-                List<Card> newHand = player.getHand();
-                double spacing2 = (scene.getWidth() - (CARD_WIDTH * newHand.size())) / (newHand.size() + 1);
-                for (int i = 0; i < newHand.size(); i++) {
-                    Card card = newHand.get(i);
-                    double x = spacing2 * (i + 1) + CARD_WIDTH * i;
-                    double y = scene.getHeight() - 250;
-                    card.setPosition(x, y);
-                    card.addToGroup(grupp);
-
-                    card.handleMouseHover();
-                    card.getGroup().setOnMouseClicked(e -> card.handleMouseClicked(e, SPACING, CARD_HEIGHT, CARD_WIDTH, GRID_SIZE, player));
-                }
+                System.out.println("Deck is fired. Weird...");
             }
         });
 
