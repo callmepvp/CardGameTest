@@ -4,10 +4,12 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.shape.Rectangle;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.HelloApplication;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
+import javafx.scene.Node;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,6 +98,17 @@ public class Player {
 
     public void giveCardFunctionality(Group grupp, Scene scene, Player player) {
         double spacing = (scene.getWidth() - (HelloApplication.CARD_WIDTH * getHand().size())) / (getHand().size() + 1);
+        // Clear all mouse click handlers for all cards before setting new ones
+        for (Node node : grupp.getChildren()) {
+            if (node instanceof Group cardGroup) {
+                for (Node cardNode : cardGroup.getChildren()) {
+                    if (cardNode instanceof Rectangle) {
+                        cardNode.setOnMouseClicked(null);
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < getHand().size(); i++) {
             Card card = getHand().get(i);
             double x = spacing * (i + 1) + HelloApplication.CARD_WIDTH * i;

@@ -593,7 +593,7 @@ public class HelloApplication extends Application {
                                         }
 
                                         //Check if the grid is now empty, attackPhase is over
-                                        if (player.getPlayedCards().isEmpty() && enemy.getPlayedCards().isEmpty()) {
+                                        if (player.getPlayedCards().isEmpty() || enemy.getPlayedCards().isEmpty()) {
                                             isAttackPhase = false;
                                             playerPlacedCards = false;
                                             enemyPlacedCards = false;
