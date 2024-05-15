@@ -15,10 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -28,6 +25,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
@@ -40,12 +38,10 @@ import org.example.cardgametest.Entities.PhaseNode;
 import org.example.cardgametest.Entities.Player;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class HelloApplication extends Application {
     public static final int GRID_SIZE = 5;
@@ -67,7 +63,10 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
 
         Group grupp = new Group();
-        Scene scene = new Scene(grupp, 1280, 960);
+
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        Scene scene = new Scene(grupp, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
+        stage.setMaximized(true);
 
         Image pakk = new Image(new FileInputStream("pakk.png"));
         Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
@@ -78,15 +77,6 @@ public class HelloApplication extends Application {
         mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
 
         MediaView mediaView = new MediaView(mediaPlayer);
-
-
-        /*
-        GridPane gameBoard = new GridPane();
-        gameBoard.setHgap(SPACING);
-        gameBoard.setVgap(SPACING);
-        gameBoard.setLayoutX(50);
-        gameBoard.setLayoutY(150);
-        */
 
         GridPane playerGrid = new GridPane();
         GridPane enemyGrid = new GridPane();
@@ -221,21 +211,6 @@ public class HelloApplication extends Application {
 
         playerEnergyText.textProperty().bind(Bindings.concat("Player Energy: ").concat(player.energyProperty()));
 
-        //Setup the cards
-        /*
-        List<Card> hand = player.getHand();
-        double spacing = (scene.getWidth() - (CARD_WIDTH * hand.size())) / (hand.size() + 1);
-        for (int i = 0; i < hand.size(); i++) {
-            Card card = hand.get(i);
-            double x = spacing * (i + 1) + CARD_WIDTH * i;
-            double y = scene.getHeight() - 250;
-            card.setPosition(x, y);
-            card.addToGroup(grupp);
-
-            card.handleMouseHover();
-            card.getGroup().setOnMouseClicked(e -> card.handleMouseClicked(e, SPACING, CARD_HEIGHT, CARD_WIDTH, GRID_SIZE, player));
-        }*/
-
         // Next Phase Button
         Button nextPhaseButton = new Button("NEXT PHASE");
         nextPhaseButton.setFont(Font.font(18));
@@ -249,22 +224,19 @@ public class HelloApplication extends Application {
                 nextPhaseButton.setDisable(true);
                 if (!isAttackPhase) {
                     // If it's not the attack phase, play the enemy turn
+                    nextPhaseButton.setDisable(true);
                     playEnemyTurn(enemyGrid, enemy, player);
-                    Timeline returnToPlayerTurnTimeline = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
-                        playerTurn = true;
-                        if (playerPlacedCards && enemyPlacedCards) {
-                            // If both player and enemy have placed cards, transition to attack phase
-                            isAttackPhase = true;
-                            enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
-                        } else {
-                            enablePlayerTurn(player);
-                        }
-                    }));
-                    returnToPlayerTurnTimeline.setCycleCount(1);
-                    returnToPlayerTurnTimeline.play();
+                    playerTurn = true;
+                    if (playerPlacedCards && enemyPlacedCards) {
+                        // If both player and enemy have placed cards, transition to attack phase
+                        isAttackPhase = true;
+                        enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
+                    } else {
+                        enablePlayerTurn(player);
+                    }
                 } else {
                     // If it's the attack phase, enable the player's attack phase
-                    isAttackPhase = false;
+                    nextPhaseButton.setDisable(true);
                     enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                 }
             } else {
@@ -276,14 +248,14 @@ public class HelloApplication extends Application {
                     if (playerPlacedCards && enemyPlacedCards) {
                         // If both player and enemy have placed cards, transition to attack phase
                         isAttackPhase = true;
-                        enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                         nextPhaseButton.setDisable(true);
+                        enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                     } else {
                         enablePlayerTurn(player);
                     }
                 } else {
                     // If it's the attack phase, enable the player's attack phase
-                    isAttackPhase = false;
+                    nextPhaseButton.setDisable(true);
                     enableAttackPhase(player, playerGrid, enemy, enemyGrid, grupp, scene);
                 }
             }
@@ -292,9 +264,9 @@ public class HelloApplication extends Application {
         enablePlayerTurn(player); //Player goes first
 
         // Enable the button only if the player has placed exactly 4 cards
-        scene.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (playerTurn && player.getNumberOfCardsOnGrid() == 4 && !isAttackPhase) {
-                nextPhaseButton.setDisable(false); // Enable button if exactly 4 cards are placed
+        scene.addEventHandler(MouseEvent.MOUSE_MOVED, event -> {
+            if (playerTurn && player.getNumberOfCardsOnGrid() == 1 && !isAttackPhase) {
+                nextPhaseButton.setDisable(false);
             }
         });
 
@@ -345,7 +317,42 @@ public class HelloApplication extends Application {
         Button start = new Button("");
         start.setFont(font);
         start.setOnAction(event -> {
-            scene.setFill(Color.DEEPSKYBLUE);
+            Image backgroundImage;
+            try {
+                backgroundImage = new Image(new FileInputStream("bg1.png"));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            ImageView imageView = new ImageView(backgroundImage);
+
+            // Set the dimensions of the ImageView to match the desired background size
+            imageView.setFitWidth(scene.getWidth());
+            imageView.setFitHeight(scene.getHeight());
+
+            // Create a BackgroundImage
+            BackgroundImage background = new BackgroundImage(
+                    imageView.snapshot(null, null), // Use snapshot to capture the ImageView with its updated dimensions
+                    BackgroundRepeat.NO_REPEAT,
+                    BackgroundRepeat.NO_REPEAT,
+                    BackgroundPosition.CENTER,
+                    new BackgroundSize(
+                            scene.getWidth(), scene.getHeight(),
+                            true, true,
+                            true, true
+                    )
+            );
+
+            // Create a Background
+            Background bg = new Background(background);
+
+            // Create a root pane and set the background
+            Pane rootPane = new Pane();
+            rootPane.setBackground(bg);
+            rootPane.getChildren().add(grupp);
+
+            // Update the scene's root with the new rootPane
+            scene.setRoot(rootPane);
             stage.setTitle("Card Game");
             stage.setScene(scene);
             stage.show();
@@ -488,6 +495,14 @@ public class HelloApplication extends Application {
 
                                         System.out.println("Player took " + enemyAttack + " damage!");
                                         System.out.println("Enemy took " + playerAttack + " damage!");
+
+                                        //Animation
+                                        PhaseNode pn = new PhaseNode(enemyAttack, true, playerAttack, true);
+                                        pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                        pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                        grupp.getChildren().add(pn);
+
+                                        pn.startTimer(grupp);
                                     }
 
                                     //CASE 2 - Defense and defense
@@ -500,6 +515,14 @@ public class HelloApplication extends Application {
                                         player.setAddedDamage(totalDefense);
 
                                         System.out.println("Total bonus to next upcoming attack: " + totalDefense);
+
+                                        //Animation
+                                        PhaseNode pn = new PhaseNode(enemyDefense, false, playerDefense, false);
+                                        pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                        pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                        grupp.getChildren().add(pn);
+
+                                        pn.startTimer(grupp);
                                     }
 
                                     //CASE 3 - Attack and defense
@@ -527,20 +550,30 @@ public class HelloApplication extends Application {
                                         int damage = (playerAttack + player.getAddedDamage() - enemyDefense);
                                         player.setAddedDamage(0);
 
+                                        PhaseNode pn = null;
                                         if (damage > 0) {
                                             System.out.println("Damage dealt: " + damage);
                                             if (attacker == card) {
                                                 // Player attacked, so enemy takes damage
                                                 enemy.setHp(enemy.getHp() - damage);
                                                 System.out.println("Enemy takes " + damage + " damage.");
+                                                pn = new PhaseNode(enemyDefense, false, playerAttack, true);
                                             } else {
                                                 // Enemy attacked, so player takes damage
                                                 player.setHp(player.getHp() - damage);
                                                 System.out.println("Player takes " + damage + " damage.");
+                                                pn = new PhaseNode(enemyDefense, true, playerAttack, false);
                                             }
                                         } else {
                                             System.out.println("No damage dealt.");
                                         }
+
+                                        //Animation
+                                        Objects.requireNonNull(pn).setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                        pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                        grupp.getChildren().add(pn);
+
+                                        pn.startTimer(grupp);
                                     }
 
                                     //Deal with removing the cards
@@ -553,13 +586,6 @@ public class HelloApplication extends Application {
                                     grupp.getChildren().remove(enemyCard.getGroup());
 
                                 }
-
-                                /*
-                                System.out.println(player.getPlayedCards());
-                                System.out.println(player.getPlayedCards().size());
-
-                                System.out.println(enemy.getPlayedCards());
-                                System.out.println(enemy.getPlayedCards().size());*/
 
                                 //Check if the grid is now empty, attackPhase is over
                                 if (player.getPlayedCards().isEmpty() && enemy.getPlayedCards().isEmpty()) {

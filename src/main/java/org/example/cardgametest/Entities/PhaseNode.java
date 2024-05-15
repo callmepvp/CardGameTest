@@ -1,5 +1,9 @@
 package org.example.cardgametest.Entities;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
@@ -9,6 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+
 import java.nio.file.Paths;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,8 +34,8 @@ public class PhaseNode extends VBox {
 		rightText.setFill(playerIsAttacking ? Color.RED : Color.BLUE);
 		HBox level1 = new HBox(leftText, imageView, rightText);
 		level1.setSpacing(20);
-		Text aiText = new Text("(left) AI IS " + (aiIsAttacking ? "ATTACKING" : "DEFENDING"));
-		Text playerText = new Text("(right) PLAYER IS " + (playerIsAttacking ? "ATTACKING" : "DEFENDING"));
+		Text aiText = new Text("(Left) AI IS " + (aiIsAttacking ? "ATTACKING" : "DEFENDING"));
+		Text playerText = new Text("(Right) PLAYER IS " + (playerIsAttacking ? "ATTACKING" : "DEFENDING"));
 
 		level1.setAlignment(Pos.CENTER);
 
@@ -47,13 +53,8 @@ public class PhaseNode extends VBox {
 		this.setMaxHeight(200);
 	}
 
-	public void startTimer(Group grupp){
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				grupp.getChildren().remove(PhaseNode.this);
-			}
-		}, 2000);
+	public void startTimer(Group group) {
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> group.getChildren().remove(PhaseNode.this)));
+		timeline.play();
 	}
 }
