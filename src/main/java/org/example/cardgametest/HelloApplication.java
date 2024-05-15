@@ -626,11 +626,9 @@ public class HelloApplication extends Application {
     private void checkHealth(Player player, Enemy enemy) throws Exception {
         if (player.getHp() <= 0) {
             System.out.println("Player has been defeated. Exiting game...");
-            Stat.saveStatsToFile(player, enemy);
             Platform.exit();
         } else if (enemy.getHp() <= 0) {
             System.out.println("Enemy has been defeated. Exiting game...");
-            Stat.saveStatsToFile(player, enemy);
             Platform.exit();
         }
     }
