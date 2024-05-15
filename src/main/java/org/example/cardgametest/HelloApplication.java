@@ -67,6 +67,7 @@ public class HelloApplication extends Application {
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         Scene scene = new Scene(grupp, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
         stage.setMaximized(true);
+        stage.initStyle(StageStyle.UNDECORATED);
 
         Image pakk = new Image(new FileInputStream("pakk.png"));
         Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
