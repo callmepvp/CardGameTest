@@ -31,6 +31,8 @@ public abstract class Card {
 
     private Popup popup;
 
+    private boolean animationPlaying = false;
+
     public Card(String name, String description, String effect, int energyCost, int stat, String StatText, GridPane gameBoard) {
         this.gameBoard = gameBoard;
         this.name = name;
@@ -96,6 +98,14 @@ public abstract class Card {
         group.setLayoutY(y);
     }
 
+    public boolean isAnimationPlaying() {
+        return animationPlaying;
+    }
+
+    public void setAnimationPlaying(boolean clicksEnabled) {
+        this.animationPlaying = clicksEnabled;
+    }
+
     public void addToGroup(Group parentGroup) {
         parentGroup.getChildren().add(group);
     }
@@ -151,7 +161,7 @@ public abstract class Card {
 
     public void handleMouseClicked(MouseEvent event, double spacing, double cardHeight, double cardWidth, int gridSize, Player player) {
         int maxCards = 4;
-        if (!HelloApplication.isAttackPhase && player.getNumberOfCardsOnGrid() < maxCards) { //Check if the player has played less than 4 cards
+        if (!HelloApplication.isAttackPhase && player.getNumberOfCardsOnGrid() < maxCards && !isAnimationPlaying()) { //Check if the player has played less than 4 cards
             if (player.getEnergy() >= getEnergyCost()) { //Player has enough mana
                 player.setEnergy(player.getEnergy() - getEnergyCost()); //Remove the mana amount
                 int columnIndex = (int) (event.getX() / (cardWidth + spacing));
