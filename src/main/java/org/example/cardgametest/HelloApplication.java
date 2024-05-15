@@ -3,6 +3,7 @@ package org.example.cardgametest;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -70,7 +71,6 @@ public class HelloApplication extends Application {
         stage.initStyle(StageStyle.UNDECORATED);
 
         Image pakk = new Image(new FileInputStream("pakk.png"));
-        Image pakk2 = new Image(new FileInputStream("pakkraam.png"));
         ImageView kaardipakkview = new ImageView(pakk);
 
         Media media = new Media(Paths.get("zurka.mp3").toUri().toString());
@@ -93,7 +93,7 @@ public class HelloApplication extends Application {
         enemyGrid.setLayoutY(50);
 
         // Create a player object
-        Player player = new Player(100, 20);
+        Player player = new Player(100, 5);
         Enemy enemy = new Enemy(100, 4);
 
         // Create cardstacks for attacking and defending
@@ -274,17 +274,8 @@ public class HelloApplication extends Application {
 
         kaardipakkview.setX(950);
         kaardipakkview.setY(250);
-        kaardipakkview.setFitHeight(350);
-        kaardipakkview.setFitWidth(300);
-
-        kaardipakkview.setOnMouseEntered(t -> kaardipakkview.setImage(pakk2));
-        kaardipakkview.setOnMouseExited(t -> kaardipakkview.setImage(pakk));
-
-        kaardipakkview.setOnMouseClicked(event -> {
-            if (player.getHand().isEmpty() && !player.getDeck().isEmpty()) {
-                System.out.println("Deck is fired. Weird...");
-            }
-        });
+        kaardipakkview.setFitHeight(250);
+        kaardipakkview.setFitWidth(150);
 
         grupp.getChildren().addAll(nextPhaseButton, kaardipakkview, playerGrid, enemyGrid, playerHpText, enemyHpText, playerEnergyText, mediaView);
 
@@ -588,6 +579,8 @@ public class HelloApplication extends Application {
                                             enemy.getPlayedCards().remove(enemyCard);
                                             grupp.getChildren().remove(enemyCard.getGroup());
 
+                                            //Check HP
+                                            checkHealth(player, enemy);
                                         }
 
                                         //Check if the grid is now empty, attackPhase is over
@@ -635,6 +628,16 @@ public class HelloApplication extends Application {
     private void disableCardClicks(List<Card> cards) {
         for (Card card : cards) {
             card.getGroup().setOnMouseClicked(null);
+        }
+    }
+
+    private void checkHealth(Player player, Enemy enemy) {
+        if (player.getHp() <= 0) {
+            System.out.println("Player has been defeated. Exiting game...");
+            Platform.exit();
+        } else if (enemy.getHp() <= 0) {
+            System.out.println("Enemy has been defeated. Exiting game...");
+            Platform.exit();
         }
     }
 }
