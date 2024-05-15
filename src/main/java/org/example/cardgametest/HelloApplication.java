@@ -1,7 +1,5 @@
 package org.example.cardgametest;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -72,8 +70,7 @@ public class HelloApplication extends Application {
 
         Image pakk = new Image(new FileInputStream("pakk.png"));
         ImageView kaardipakkview = new ImageView(pakk);
-
-        Media media = new Media(Paths.get("zurka.mp3").toUri().toString());
+        Media media = new Media(Paths.get("tavern.mp3").toUri().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(media);
 
         mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
@@ -474,6 +471,10 @@ public class HelloApplication extends Application {
                                                 player.setHp(player.getHp() - enemyAttack);
                                                 enemy.setHp(enemy.getHp() - playerAttack);
 
+                                                // Stats
+                                                player.updateDamageStat(playerAttack);
+                                                enemy.updateDamageStat(enemyAttack);
+
                                                 System.out.println("Player took " + enemyAttack + " damage!");
                                                 System.out.println("Enemy took " + playerAttack + " damage!");
 
@@ -497,6 +498,9 @@ public class HelloApplication extends Application {
                                                 // Sum up total defense
                                                 int totalDefense = playerDefense + enemyDefense;
                                                 player.setAddedDamage(totalDefense);
+
+                                                player.updateDefenseCardsPlayedByPlayer();
+                                                enemy.updateDefenseCardsPlayedByAI();
 
                                                 System.out.println("Total bonus to next upcoming attack: " + totalDefense);
 
@@ -549,10 +553,14 @@ public class HelloApplication extends Application {
                                                     if (attacker == card) {
                                                         // Player attacked, so enemy takes damage
                                                         enemy.setHp(enemy.getHp() - damage);
+                                                        enemy.updateDefenseCardsPlayedByAI();
+                                                        player.updateDamageStat(playerAttack+enemyDefense);
                                                         System.out.println("Enemy takes " + damage + " damage.");
                                                     } else {
                                                         // Enemy attacked, so player takes damage
                                                         player.setHp(player.getHp() - damage);
+                                                        enemy.updateDamageStat(damage+enemyDefense);
+                                                        player.updateDefenseCardsPlayedByPlayer();
                                                         System.out.println("Player takes " + damage + " damage.");
                                                     }
                                                 } else {
@@ -568,7 +576,7 @@ public class HelloApplication extends Application {
                                                     c.setAnimationPlaying(true);
                                                 }
                                                 pn.startTimer(grupp, player, scene, player.getPlayedCards());
-                                            }
+											}
 
                                             //Deal with removing the cards
                                             playerGrid.getChildren().remove(card.getGroup());

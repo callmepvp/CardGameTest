@@ -15,6 +15,10 @@ public class Enemy {
     private List<Card> deck;
     private List<Card> playedCards;
 
+    int attackCardsPlayedByAI = 0;
+    int damageDoneByAI = 0;
+    int defenseCardsPlayedByAI = 0;
+
     public Enemy(int hp, int energy) {
         this.hp = new SimpleIntegerProperty(hp);
         this.energy = energy;
@@ -48,6 +52,27 @@ public class Enemy {
 
     public List<Card> getPlayedCards() {
         return playedCards;
+    }
+
+    public void updateDamageStat(int damage){
+        damageDoneByAI+=damage;
+        attackCardsPlayedByAI+=1;
+    }
+
+    public void updateDefenseCardsPlayedByAI() {
+        this.defenseCardsPlayedByAI += 1;
+    }
+
+    public int getAttackCardsPlayedByEnemy() {
+        return attackCardsPlayedByAI;
+    }
+
+    public int getDamageDoneByEnemy() {
+        return damageDoneByAI;
+    }
+
+    public int getDefenseCardsPlayedByPlayer() {
+        return defenseCardsPlayedByAI;
     }
 
     public void generateRandomDeck(List<Card> allCards) {
