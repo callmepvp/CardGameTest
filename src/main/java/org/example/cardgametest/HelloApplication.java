@@ -588,8 +588,11 @@ public class HelloApplication extends Application {
                                             grupp.getChildren().remove(enemyCard.getGroup());
 
                                             //Check HP
-                                            checkHealth(player, enemy);
-                                        }
+											try {
+												checkHealth(player, enemy);
+											} catch (Exception ignored) {
+											}
+										}
 
                                         //Check if the grid is now empty, attackPhase is over
                                         if (player.getPlayedCards().isEmpty() || enemy.getPlayedCards().isEmpty()) {
@@ -639,12 +642,14 @@ public class HelloApplication extends Application {
         }
     }
 
-    private void checkHealth(Player player, Enemy enemy) {
+    private void checkHealth(Player player, Enemy enemy) throws Exception {
         if (player.getHp() <= 0) {
             System.out.println("Player has been defeated. Exiting game...");
+            Stat.saveStatsToFile(player, enemy);
             Platform.exit();
         } else if (enemy.getHp() <= 0) {
             System.out.println("Enemy has been defeated. Exiting game...");
+            Stat.saveStatsToFile(player, enemy);
             Platform.exit();
         }
     }
