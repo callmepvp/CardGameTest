@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -14,8 +15,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import org.example.cardgametest.Card.Card;
 
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,8 +56,14 @@ public class PhaseNode extends VBox {
 		this.setMaxHeight(200);
 	}
 
-	public void startTimer(Group group) {
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> group.getChildren().remove(PhaseNode.this)));
+	public void startTimer(Group group, Player player, Scene scene, List<Card> cards) {
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2.5), event -> {
+			group.getChildren().remove(PhaseNode.this);
+			player.giveCardFunctionality(group, scene, player);
+			for (Card c : cards) {
+				c.setAnimationPlaying(false);
+			}
+		}));
 		timeline.play();
 	}
 }
