@@ -85,60 +85,20 @@ public class Enemy {
 
     //TODO Implement AI logic, higher weight means its more likely to be picked
     public Card getRandomCardFromPlayedCards(Player player) {
-        // Get the list of played cards
         List<Card> playedCards = getPlayedCards();
-        Map<Card, Double> cardWeights = new HashMap<>();
-        System.out.println("[BOT] Searching for the best move...");
 
-        int healthDifference = getHp() - player.getHp();
-        System.out.println(playedCards);
-        System.out.println(playedCards.size());
-        for (Card card : playedCards) {
-            double weight = 0.0;
-
-            if (card instanceof attackCard) {
-                if (healthDifference >= 0) {
-                    weight = 1.0;
-                } else {
-                    weight = 0.5;
-                }
-            } else if (card instanceof defenseCard) {
-                if (healthDifference < 0) {
-                    weight = 1.0;
-                } else {
-                    weight = 0.5;
-                }
-            }
-
-            // Check if the card already has a weight in the map
-            if (cardWeights.containsKey(card)) {
-                // Update the existing weight by adding the new weight to it
-                weight += cardWeights.get(card);
-            }
-
-            // Store the weight for the card
-            cardWeights.put(card, weight);
+        // Check if there are any played cards
+        if (playedCards.isEmpty()) {
+            System.out.println("[BOT] No cards have been played.");
+            return null;
         }
 
-        //Play the highest weighted card
-        Card bestCard = null;
-        double highestWeight = Double.NEGATIVE_INFINITY;
+        // Pick a random index within the range of played cards list
+        int randomIndex = new Random().nextInt(playedCards.size());
 
-        // Iterate through the card weights map to find the card with the highest weight
-        for (Map.Entry<Card, Double> entry : cardWeights.entrySet()) {
-            Card card = entry.getKey();
-            double weight = entry.getValue();
-
-            // Check if the current card has a higher weight than the current highest weight
-            if (weight > highestWeight) {
-                // Update the best card and highest weight
-                bestCard = card;
-                highestWeight = weight;
-            }
-        }
-
-        // Return the card with the highest weight
-        System.out.println("[BOT] Found card " + bestCard.getName() + " with a weight of " + highestWeight);
-        return bestCard;
+        // Return the card at the randomly selected index
+        Card randomCard = playedCards.get(randomIndex);
+        System.out.println("[BOT] Selected card " + randomCard.getName() + " randomly.");
+        return randomCard;
     }
 }
