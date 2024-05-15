@@ -3,6 +3,7 @@ package org.example.cardgametest.Entities;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
@@ -91,6 +92,7 @@ public class Enemy {
                         originalCard.getEnergyCost(),
                         originalCard.getStat(),
                         originalCard.getStatText(),
+                        Color.LIGHTCORAL,
                         enemyGrid)
                 );
             } else if (originalCard instanceof defenseCard) {
@@ -101,6 +103,7 @@ public class Enemy {
                         originalCard.getEnergyCost(),
                         originalCard.getStat(),
                         originalCard.getStatText(),
+                        Color.LIGHTBLUE,
                         enemyGrid)
                 );
             }

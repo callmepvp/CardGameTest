@@ -29,8 +29,8 @@ import javafx.util.Duration;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
-import org.example.cardgametest.Effects.Placeholder_Attackeffect;
-import org.example.cardgametest.Effects.Placeholder_Defenseeffect;
+import org.example.cardgametest.Effects.Hardened;
+import org.example.cardgametest.Effects.Sharpened;
 import org.example.cardgametest.Effects.effect;
 import org.example.cardgametest.Entities.Enemy;
 import org.example.cardgametest.Entities.PhaseNode;
@@ -54,13 +54,18 @@ public class HelloApplication extends Application {
     private boolean playerPlacedCards = false;
     private boolean enemyPlacedCards = false;
 
+    private static final String[] nimedcollec = {"Stab", "Kick", "Slash", "Punch", "Poke", "Hit", "Bash", "Deadly maul", "Ambush", "Backstab"};
+    private static final  String[] vnimedcollec = {"Obliterate", "Annihilate", "Disintegration ray", "Collapse", "Marked for death"};
+    private static final String[] knimedcollec = {"Defend", "Shield", "Barrier", "Block", "Dodge", "Barricade", "Endure"};
+    private static final String[] kvnimedcollec = {"Paladin's favor", "Absolute cancel", "Saving grace", "Grit", "Unbreakable fortress"};
+
     public static void main(String[] args) {
         launch();
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-
+        //Main variables and things
         Group grupp = new Group();
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -93,88 +98,41 @@ public class HelloApplication extends Application {
         Player player = new Player(100, 5);
         Enemy enemy = new Enemy(100, 4);
 
+        Runnable onExitFunction = () -> {
+            System.out.println("Program is exiting. Performing cleanup...");
+            try {
+                Stat.saveStatsToFile(player, enemy);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+
+        // Add the shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread(onExitFunction));
+
         // Create cardstacks for attacking and defending
         List<attackCard> attackCards = new ArrayList<>();
         List<defenseCard> defenseCards = new ArrayList<>();
 
         List<effect> AttackEffects = new ArrayList<>();
-        //AttackEffects.add()
         List<effect> DefenseEffects = new ArrayList<>();
-        AttackEffects.add(new Placeholder_Attackeffect("Much damage!"));
-        DefenseEffects.add(new Placeholder_Defenseeffect("Much no damage!"));
+        AttackEffects.add(new Sharpened("Sharpened(+2)"));
+        DefenseEffects.add(new Hardened("Hardened(+2)"));
 
-        // kaardinimede list
-        String[] nimedcollec = {"Stab", "Kick", "Slash", "Punch", "Poke", "Hit", "Bash", "Deadly maul", "Ambush", "Backstab"};
-        List<String> ründenimed = new ArrayList<>(Arrays.asList(nimedcollec));
+        List<String> ründenimed = new ArrayList<>();
+        ründenimed.addAll(Arrays.asList(nimedcollec));
 
-        String[] vnimedcollec = {"Obliterate", "Annihilate", "Disintegration ray", "Collapse", "Marked for death"};
-        List<String> vingedründenimed = new ArrayList<>(Arrays.asList(vnimedcollec));
+        List<String> vingedründenimed = new ArrayList<>();
+        vingedründenimed.addAll(Arrays.asList(vnimedcollec));
 
-        // kaardinimede list
-        String[] knimedcollec = {"Defend", "Shield", "Barrier", "Block", "Dodge", "Barricade", "Endure"};
-        List<String> kaitsenimed = new ArrayList<>(Arrays.asList(knimedcollec));
+        List<String> kaitsenimed = new ArrayList<>();
+        kaitsenimed.addAll(Arrays.asList(knimedcollec));
 
-        String[] kvnimedcollec = {"Paladin's favor", "Absolute cancel", "Saving grace", "Grit", "Unbreakable fortress"};
-        List<String> kvingedkaitsenimed = new ArrayList<>(Arrays.asList(kvnimedcollec));
+        List<String> kvingedkaitsenimed = new ArrayList<>();
+        kvingedkaitsenimed.addAll(Arrays.asList(kvnimedcollec));
 
-        int attack;
-        int defense;
-        int attackenergy;
-        int defenseenergy;
-        double kaseffekt;
-
-        for (int i = 0; i < 32; i++) {
-            attack = (int) (Math.random() * 10) + 1;
-            defense = (int) (Math.random() * 10) + 1;
-            kaseffekt = Math.random() * 10;
-            Collections.shuffle(ründenimed);
-            Collections.shuffle(vingedründenimed);
-            Collections.shuffle(kaitsenimed);
-            Collections.shuffle(kvingedkaitsenimed);
-            attackCard a;
-            defenseCard b;
-            attackenergy = attack / 2;
-            defenseenergy = defense / 2;
-            Collections.shuffle(AttackEffects);
-            Collections.shuffle(DefenseEffects);
-            if (attack <= 5) {
-                if (kaseffekt <= 2) {
-                    a = new attackCard(ründenimed.getFirst(), "Yap Yap Yap", AttackEffects.getFirst().getName(), attackenergy, attack, "Attack: " + attack, playerGrid);
-                } else {
-                    a = new attackCard(ründenimed.getFirst(), "Yap Yap Yap", "No effect", attackenergy, attack, "Attack: " + attack, playerGrid);
-                }
-            } else {
-                if (kaseffekt <= 5) {
-                    a = new attackCard(vingedründenimed.getFirst(), "Yap Yap Yap", AttackEffects.getFirst().getName(), attackenergy, attack, "Attack: " + attack, playerGrid);
-                } else {
-                    a = new attackCard(vingedründenimed.getFirst(), "Yap Yap Yap", "No effect", attackenergy, attack, "Attack: " + attack, playerGrid);
-                }
-            }
-            if (defense <= 5) {
-                if (kaseffekt <= 2) {
-                    b = new defenseCard(kaitsenimed.getFirst(), "Yap Yap Yap", DefenseEffects.getFirst().getName(), defenseenergy, defense, "Defense: " + defense, playerGrid);
-                } else {
-                    b = new defenseCard(kaitsenimed.getFirst(), "Yap Yap Yap", "No effect", defenseenergy, defense, "Defense: " + defense, playerGrid);
-                }
-            } else {
-                if (kaseffekt <= 5) {
-                    b = new defenseCard(kvingedkaitsenimed.getFirst(), "Yap Yap Yap", DefenseEffects.getFirst().getName(), defenseenergy, defense, "Defense: " + defense, playerGrid);
-                } else {
-                    b = new defenseCard(kvingedkaitsenimed.getFirst(), "Yap Yap Yap", "No effect", defenseenergy, defense, "Defense: " + defense, playerGrid);
-                }
-            }
-            attackCards.add(a);
-            defenseCards.add(b);
-
-        }
-
-        // Create a list to hold all available cards
-        List<Card> allCards = new ArrayList<>();
-        allCards.addAll(attackCards);
-        allCards.addAll(defenseCards);
-
-        allCards.addAll(attackCards);
-        allCards.addAll(defenseCards);
+        CardGenerator cardGenerator = new CardGenerator(playerGrid, AttackEffects, DefenseEffects, ründenimed, vingedründenimed, kaitsenimed, kvingedkaitsenimed);
+        List<Card> allCards = cardGenerator.Generate();
 
         player.generateRandomDeck(allCards);
         player.generateRandomHand();
@@ -269,7 +227,7 @@ public class HelloApplication extends Application {
             }
         });
 
-        kaardipakkview.setX(950);
+        kaardipakkview.setX(primaryScreenBounds.getWidth()-200);
         kaardipakkview.setY(250);
         kaardipakkview.setFitHeight(250);
         kaardipakkview.setFitWidth(150);
@@ -468,6 +426,12 @@ public class HelloApplication extends Application {
                                                 int playerAttack = card.getStat();
                                                 int enemyAttack = enemyCard.getStat();
 
+                                                if (!card.getEffect().equals("No effect")) {
+                                                    if (card.getEffect().equals("Sharpened(+2)")) {
+                                                        playerAttack +=2;
+                                                    }
+                                                }
+
                                                 player.setHp(player.getHp() - enemyAttack);
                                                 enemy.setHp(enemy.getHp() - playerAttack);
 
@@ -494,6 +458,12 @@ public class HelloApplication extends Application {
                                             if (card instanceof defenseCard && enemyCard instanceof defenseCard) {
                                                 int playerDefense = card.getStat();
                                                 int enemyDefense = enemyCard.getStat();
+
+                                                if (!card.getEffect().equals("No effect")) {
+                                                    if (card.getEffect().equals("Hardened(+2)")){
+                                                        playerDefense += 2;
+                                                    }
+                                                }
 
                                                 // Sum up total defense
                                                 int totalDefense = playerDefense + enemyDefense;
@@ -537,12 +507,6 @@ public class HelloApplication extends Application {
                                                 // Calculate attack and defense stats
                                                 playerAttack = attacker.getStat();
                                                 enemyDefense = defender.getStat();
-                                                if (attacker == card) {
-                                                    pn = new PhaseNode(enemyDefense, false, playerAttack, true);
-                                                } else {
-                                                    pn = new PhaseNode(enemyDefense, true, playerAttack, false);
-                                                }
-
 
                                                 // Calculate damage and chip damage
                                                 int damage = (playerAttack + player.getAddedDamage() - enemyDefense);
@@ -552,12 +516,23 @@ public class HelloApplication extends Application {
                                                     System.out.println("Damage dealt: " + damage);
                                                     if (attacker == card) {
                                                         // Player attacked, so enemy takes damage
+                                                        if (enemyCard.getEffect().equals("Hardened(+2)")){
+                                                            damage -= 2;
+                                                        }
+                                                        if (card.getEffect().equals("Sharpened(+2)")) {
+                                                            damage += 2;
+                                                        }
                                                         enemy.setHp(enemy.getHp() - damage);
                                                         enemy.updateDefenseCardsPlayedByAI();
                                                         player.updateDamageStat(playerAttack+enemyDefense);
                                                         System.out.println("Enemy takes " + damage + " damage.");
                                                     } else {
                                                         // Enemy attacked, so player takes damage
+                                                        if (card.getEffect().equals("Hardened(+2)")){
+                                                            damage -= 2;
+                                                        } if (enemyCard.getEffect().equals("Sharpened(+2)")) {
+                                                            damage += 2;
+                                                        }
                                                         player.setHp(player.getHp() - damage);
                                                         enemy.updateDamageStat(damage+enemyDefense);
                                                         player.updateDefenseCardsPlayedByPlayer();
@@ -565,6 +540,12 @@ public class HelloApplication extends Application {
                                                     }
                                                 } else {
                                                     System.out.println("No damage dealt.");
+                                                }
+
+                                                if (attacker == card) {
+                                                    pn = new PhaseNode(enemyDefense, false, playerAttack, true);
+                                                } else {
+                                                    pn = new PhaseNode(enemyDefense, true, playerAttack, false);
                                                 }
 
                                                 //Animation

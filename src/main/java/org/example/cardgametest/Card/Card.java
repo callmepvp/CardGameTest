@@ -24,8 +24,8 @@ public abstract class Card {
     private final int energyCost;
     private final int stat;
     private final String StatText;
-
     private final String effect;
+    private final Color colour; //all Caps
     private final Group group;
     private final GridPane gameBoard;
 
@@ -33,7 +33,7 @@ public abstract class Card {
 
     private boolean animationPlaying = false;
 
-    public Card(String name, String description, String effect, int energyCost, int stat, String StatText, GridPane gameBoard) {
+    public Card(String name, String description, String effect, int energyCost, int stat, String StatText, Color colour, GridPane gameBoard) {
         this.gameBoard = gameBoard;
         this.name = name;
         this.description = description;
@@ -41,6 +41,7 @@ public abstract class Card {
         this.stat = stat;
         this.StatText = StatText;
         this.effect= effect;
+        this.colour= colour;
         //Setup the card
         Rectangle rectangle = new Rectangle(0, 0, 150, 200);
         rectangle.setFill(Color.WHITE);
@@ -90,6 +91,7 @@ public abstract class Card {
     public String getEffect() {
         return effect;
     }
+    public Color getColor() { return colour;}
 
     public int getStat() { return stat;}
 

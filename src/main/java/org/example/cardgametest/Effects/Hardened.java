@@ -1,8 +1,8 @@
 package org.example.cardgametest.Effects;
 
-public class Placeholder_Attackeffect extends effect{
+public class Hardened extends effect{
 
-    public Placeholder_Attackeffect(String name){
+    public Hardened(String name){
         super(name);
     }
     @Override
