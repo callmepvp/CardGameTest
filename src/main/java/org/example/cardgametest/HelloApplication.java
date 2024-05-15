@@ -7,6 +7,7 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -25,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.example.cardgametest.Card.Card;
@@ -34,6 +36,7 @@ import org.example.cardgametest.Effects.Placeholder_Attackeffect;
 import org.example.cardgametest.Effects.Placeholder_Defenseeffect;
 import org.example.cardgametest.Effects.effect;
 import org.example.cardgametest.Entities.Enemy;
+import org.example.cardgametest.Entities.PhaseNode;
 import org.example.cardgametest.Entities.Player;
 
 import java.io.FileInputStream;
@@ -62,6 +65,7 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+
         Group grupp = new Group();
         Scene scene = new Scene(grupp, 1280, 960);
 
@@ -363,6 +367,8 @@ public class HelloApplication extends Application {
 
         stackPane.getChildren().add(pilt);
         stackPane.getChildren().add(vbox);
+
+
         stackPane.setStyle("-fx-background-color:BLACK");
 
         Scene menuscene = new Scene(stackPane, 1000, 700);
