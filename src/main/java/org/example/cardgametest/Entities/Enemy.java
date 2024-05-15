@@ -91,6 +91,8 @@ public class Enemy {
         System.out.println("[BOT] Searching for the best move...");
 
         int healthDifference = getHp() - player.getHp();
+        System.out.println(playedCards);
+        System.out.println(playedCards.size());
         for (Card card : playedCards) {
             double weight = 0.0;
 
@@ -136,7 +138,7 @@ public class Enemy {
         }
 
         // Return the card with the highest weight
-        System.out.println("[BOT] Found card " + Objects.requireNonNull(bestCard).getName() + " with a weight of " + highestWeight);
+        System.out.println("[BOT] Found card " + bestCard.getName() + " with a weight of " + highestWeight);
         return bestCard;
     }
 }
