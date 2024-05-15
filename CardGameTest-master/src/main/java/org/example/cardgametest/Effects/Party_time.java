@@ -12,9 +12,6 @@ public class Party_time extends effect{
     }
     @Override
     public void cardeffect() {
-        double a = Math.random();
-        double b = Math.random();
-        double c = Math.random();
-        scene.setFill(Color.color(a, b, c));
+        
     }
 }

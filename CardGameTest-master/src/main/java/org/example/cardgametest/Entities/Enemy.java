@@ -2,10 +2,12 @@ package org.example.cardgametest.Entities;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
+import org.example.cardgametest.Effects.Party_time;
 
 import java.util.*;
 
@@ -86,7 +88,7 @@ public class Enemy {
     }
 
     //TODO Implement AI logic, higher weight means its more likely to be picked
-    public Card getRandomCardFromPlayedCards(Player player) {
+    public Card getRandomCardFromPlayedCards(Player player, Scene scene) {
         // Get the list of played cards
         List<Card> playedCards = getPlayedCards();
         Map<Card, Double> cardWeights = new HashMap<>();
@@ -139,6 +141,12 @@ public class Enemy {
 
         // Return the card with the highest weight
         System.out.println("[BOT] Found card " + Objects.requireNonNull(bestCard).getName() + " with a weight of " + highestWeight);
+        if (!bestCard.getEffect().equals("No effect")) {
+            if (bestCard.getEffect().equals("Party time!")) {
+                Party_time partyTime = new Party_time("Party time!", scene);
+                partyTime.cardeffect();
+            }
+        }
         return bestCard;
     }
 }

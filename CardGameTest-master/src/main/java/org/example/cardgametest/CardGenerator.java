@@ -40,7 +40,7 @@ class CardGenerator {
         int defenseenergy;
         double kaseffekt;
 
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < 64; i++) {
             attack = (int) (Math.random() *10) +1;
             defense = (int) (Math.random() *10) +1;
             kaseffekt = Math.random()*10;

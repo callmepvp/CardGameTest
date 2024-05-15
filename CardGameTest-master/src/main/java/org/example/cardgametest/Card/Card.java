@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Popup;
 import javafx.util.Duration;
 import org.example.cardgametest.Entities.Player;
+import org.example.cardgametest.HelloApplication;
 
 
 public abstract class Card {
@@ -145,47 +146,52 @@ public abstract class Card {
         });
 
         group.setOnMouseEntered(e -> {
-            highlight();
+            highlight(Color.YELLOW);
             timelineEntered.play();
         });
     }
 
     public void handleMouseClicked(MouseEvent event, double spacing, double cardHeight, double cardWidth, int gridSize, Player player) {
-        int columnIndex = (int) (event.getX() / (cardWidth + spacing));
-        int rowIndex = (int) (event.getY() / (cardHeight + spacing));
+        int maxCards = 4;
+        if (!HelloApplication.isAttackPhase && player.getNumberOfCardsOnGrid() < maxCards) { //Check if the player has played less than 4 cards
+            if (player.getEnergy() >= getEnergyCost()) { //Player has enough mana
+                player.setEnergy(player.getEnergy() - getEnergyCost()); //Remove the mana amount
+                int columnIndex = (int) (event.getX() / (cardWidth + spacing));
+                int rowIndex = (int) (event.getY() / (cardHeight + spacing));
 
-        Node existingNode = getNodeByRowColumnIndex(rowIndex, columnIndex);
-        if (existingNode == null) {
-            // Remove the card from the player's hand
-            player.getHand().remove(this);
+                Node existingNode = getNodeByRowColumnIndex(rowIndex, columnIndex);
+                if (existingNode == null) {
+                    // Remove the card from the player's hand and add it to played cards
+                    player.getPlayedCards().add(this);
+                    player.getHand().remove(this);
 
-            // Check if the card is already present in the gameBoard
-            if (!gameBoard.getChildren().contains(group)) {
-                gameBoard.getChildren().add(group);
-                GridPane.setColumnIndex(group, columnIndex);
-                GridPane.setRowIndex(group, rowIndex);
-            }
-        } else {
-            for (int i = 0; i < gridSize; i++) {
-                for (int j = 0; j < gridSize; j++) {
-                    if (getNodeByRowColumnIndex(i, j) == null) {
-                        // Remove the card from the player's hand
-                        player.getHand().remove(this);
-
-                        // Check if the card is already present in the gameBoard
-                        if (!gameBoard.getChildren().contains(group)) {
-                            gameBoard.getChildren().add(group);
-                            GridPane.setColumnIndex(group, j);
-                            GridPane.setRowIndex(group, i);
-                        }
-                        break;
+                    // Check if the card is already present in the gameBoard
+                    if (!gameBoard.getChildren().contains(group)) {
+                        gameBoard.getChildren().add(group);
+                        GridPane.setColumnIndex(group, columnIndex);
+                        GridPane.setRowIndex(group, rowIndex);
                     }
+                } else {
+                    for (int i = 0; i < gridSize; i++) {
+                        for (int j = 0; j < gridSize; j++) {
+                            if (getNodeByRowColumnIndex(i, j) == null) {
+                                // Check if the card is already present in the gameBoard
+                                if (!gameBoard.getChildren().contains(group)) {
+                                    gameBoard.getChildren().add(group);
+                                    GridPane.setColumnIndex(group, j);
+                                    GridPane.setRowIndex(group, i);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    player.getPlayedCards().add(this);
+                    player.getHand().remove(this);
                 }
+
+                group.setOnMouseClicked(null);
             }
         }
-
-        // Disable further clicks on the card
-        group.setOnMouseClicked(null);
     }
 
 
@@ -206,10 +212,10 @@ public abstract class Card {
         return result;
     }
 
-    public void highlight() {
+    public void highlight(Color cl) {
         for (Node node : group.getChildren()) {
             if (node instanceof Rectangle rectangle) {
-                rectangle.setStroke(Color.YELLOW);
+                rectangle.setStroke(cl);
                 break;
             }
         }
