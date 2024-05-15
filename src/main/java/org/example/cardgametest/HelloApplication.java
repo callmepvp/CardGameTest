@@ -459,162 +459,164 @@ public class HelloApplication extends Application {
                     if (cardNode instanceof Rectangle) {
                         // Access the associated Card instance
                         Card card = getCardFromGroup(group, player.getPlayedCards());
-                        if (card != null) {
+                        if (!player.getHand().contains(card)) {
+                            if (card != null) {
 
-                            // Attach event listener to handle mouse clicks for played cards
-                            cardNode.setOnMouseClicked(event -> {
-                                disableCardClicks(player.getPlayedCards());
-                                if (!player.getPlayedCards().getFirst().isAnimationPlaying()) {
-                                    System.out.println("Played card: " + card.getName());
-                                    System.out.println("Queuing animations..."); //Here goes the visual cues of the cards
+                                // Attach event listener to handle mouse clicks for played cards
+                                cardNode.setOnMouseClicked(event -> {
+                                    disableCardClicks(player.getPlayedCards());
+                                    if (!player.getPlayedCards().getFirst().isAnimationPlaying()) {
+                                        System.out.println("Played card: " + card.getName());
+                                        System.out.println("Queuing animations..."); //Here goes the visual cues of the cards
 
-                                    //Enemy automatically plays a card in return
-                                    Card enemyCard = enemy.getRandomCardFromPlayedCards(player);
+                                        //Enemy automatically plays a card in return
+                                        Card enemyCard = enemy.getRandomCardFromPlayedCards(player);
 
-                                    //Perform both the player and enemy card actions
-                                    if (enemyCard != null) {
-                                        System.out.println("Enemy played card: " + enemyCard.getName());
+                                        //Perform both the player and enemy card actions
+                                        if (enemyCard != null) {
+                                            System.out.println("Enemy played card: " + enemyCard.getName());
 
-                                        //Check the combination of the played cards
-                                        //CASE 1 - Attack and attack
-                                        if (card instanceof attackCard && enemyCard instanceof attackCard) {
-                                            int playerAttack = card.getStat();
-                                            int enemyAttack = enemyCard.getStat();
+                                            //Check the combination of the played cards
+                                            //CASE 1 - Attack and attack
+                                            if (card instanceof attackCard && enemyCard instanceof attackCard) {
+                                                int playerAttack = card.getStat();
+                                                int enemyAttack = enemyCard.getStat();
 
-                                            player.setHp(player.getHp() - enemyAttack);
-                                            enemy.setHp(enemy.getHp() - playerAttack);
+                                                player.setHp(player.getHp() - enemyAttack);
+                                                enemy.setHp(enemy.getHp() - playerAttack);
 
-                                            System.out.println("Player took " + enemyAttack + " damage!");
-                                            System.out.println("Enemy took " + playerAttack + " damage!");
+                                                System.out.println("Player took " + enemyAttack + " damage!");
+                                                System.out.println("Enemy took " + playerAttack + " damage!");
 
-                                            //Animation
-                                            PhaseNode pn = new PhaseNode(enemyAttack, true, playerAttack, true);
-                                            pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
-                                            pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
-                                            grupp.getChildren().add(pn);
+                                                //Animation
+                                                PhaseNode pn = new PhaseNode(enemyAttack, true, playerAttack, true);
+                                                pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                                pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                                grupp.getChildren().add(pn);
 
-                                            for (Card c : player.getPlayedCards()) {
-                                                c.setAnimationPlaying(true);
+                                                for (Card c : player.getPlayedCards()) {
+                                                    c.setAnimationPlaying(true);
+                                                }
+                                                pn.startTimer(grupp, player, scene, player.getPlayedCards());
                                             }
-                                            pn.startTimer(grupp, player, scene, player.getPlayedCards());
+
+                                            //CASE 2 - Defense and defense
+                                            if (card instanceof defenseCard && enemyCard instanceof defenseCard) {
+                                                int playerDefense = card.getStat();
+                                                int enemyDefense = enemyCard.getStat();
+
+                                                // Sum up total defense
+                                                int totalDefense = playerDefense + enemyDefense;
+                                                player.setAddedDamage(totalDefense);
+
+                                                System.out.println("Total bonus to next upcoming attack: " + totalDefense);
+
+                                                //Animation
+                                                PhaseNode pn = new PhaseNode(enemyDefense, false, playerDefense, false);
+                                                pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                                pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                                grupp.getChildren().add(pn);
+
+                                                for (Card c : player.getPlayedCards()) {
+                                                    c.setAnimationPlaying(true);
+                                                }
+                                                pn.startTimer(grupp, player, scene, player.getPlayedCards());
+                                            }
+
+                                            //CASE 3 - Attack and defense
+                                            if ((card instanceof attackCard && enemyCard instanceof defenseCard) ||
+                                                    (card instanceof defenseCard && enemyCard instanceof attackCard)) {
+                                                int playerAttack;
+                                                int enemyDefense;
+                                                PhaseNode pn;
+
+                                                // Determine attacker and defender
+                                                Card attacker;
+                                                Card defender;
+                                                if (card instanceof attackCard) {
+                                                    attacker = card;
+                                                    defender = enemyCard;
+                                                } else {
+                                                    attacker = enemyCard;
+                                                    defender = card;
+                                                }
+
+                                                // Calculate attack and defense stats
+                                                playerAttack = attacker.getStat();
+                                                enemyDefense = defender.getStat();
+                                                if (attacker == card) {
+                                                    pn = new PhaseNode(enemyDefense, false, playerAttack, true);
+                                                } else {
+                                                    pn = new PhaseNode(enemyDefense, true, playerAttack, false);
+                                                }
+
+
+                                                // Calculate damage and chip damage
+                                                int damage = (playerAttack + player.getAddedDamage() - enemyDefense);
+                                                player.setAddedDamage(0);
+
+                                                if (damage > 0) {
+                                                    System.out.println("Damage dealt: " + damage);
+                                                    if (attacker == card) {
+                                                        // Player attacked, so enemy takes damage
+                                                        enemy.setHp(enemy.getHp() - damage);
+                                                        System.out.println("Enemy takes " + damage + " damage.");
+                                                    } else {
+                                                        // Enemy attacked, so player takes damage
+                                                        player.setHp(player.getHp() - damage);
+                                                        System.out.println("Player takes " + damage + " damage.");
+                                                    }
+                                                } else {
+                                                    System.out.println("No damage dealt.");
+                                                }
+
+                                                //Animation
+                                                pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
+                                                pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
+                                                grupp.getChildren().add(pn);
+
+                                                for (Card c : player.getPlayedCards()) {
+                                                    c.setAnimationPlaying(true);
+                                                }
+                                                pn.startTimer(grupp, player, scene, player.getPlayedCards());
+                                            }
+
+                                            //Deal with removing the cards
+                                            playerGrid.getChildren().remove(card.getGroup());
+                                            player.getPlayedCards().remove(card);
+                                            grupp.getChildren().remove(card.getGroup());
+
+                                            enemyGrid.getChildren().remove(enemyCard.getGroup());
+                                            enemy.getPlayedCards().remove(enemyCard);
+                                            grupp.getChildren().remove(enemyCard.getGroup());
+
                                         }
 
-                                        //CASE 2 - Defense and defense
-                                        if (card instanceof defenseCard && enemyCard instanceof defenseCard) {
-                                            int playerDefense = card.getStat();
-                                            int enemyDefense = enemyCard.getStat();
+                                        //Check if the grid is now empty, attackPhase is over
+                                        if (player.getPlayedCards().isEmpty() && enemy.getPlayedCards().isEmpty()) {
+                                            isAttackPhase = false;
+                                            playerPlacedCards = false;
+                                            enemyPlacedCards = false;
+                                            System.out.println("Switching back to placement phase.");
 
-                                            // Sum up total defense
-                                            int totalDefense = playerDefense + enemyDefense;
-                                            player.setAddedDamage(totalDefense);
+                                            //Do the after-attack-phase cleanup (eg. clear lists, give mana, give new cards)
+                                            player.getPlayedCards().clear();
+                                            enemy.getPlayedCards().clear();
 
-                                            System.out.println("Total bonus to next upcoming attack: " + totalDefense);
+                                            //Give back missing cards
+                                            player.generateRandomHand();
+                                            player.giveCardFunctionality(grupp, scene, player);
 
-                                            //Animation
-                                            PhaseNode pn = new PhaseNode(enemyDefense, false, playerDefense, false);
-                                            pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
-                                            pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
-                                            grupp.getChildren().add(pn);
-
-                                            for (Card c : player.getPlayedCards()) {
-                                                c.setAnimationPlaying(true);
-                                            }
-                                            pn.startTimer(grupp, player, scene, player.getPlayedCards());
-                                        }
-
-                                        //CASE 3 - Attack and defense
-                                        if ((card instanceof attackCard && enemyCard instanceof defenseCard) ||
-                                                (card instanceof defenseCard && enemyCard instanceof attackCard)) {
-                                            int playerAttack;
-                                            int enemyDefense;
-                                            PhaseNode pn = null;
-
-                                            // Determine attacker and defender
-                                            Card attacker;
-                                            Card defender;
-                                            if (card instanceof attackCard) {
-                                                attacker = card;
-                                                defender = enemyCard;
-                                            } else {
-                                                attacker = enemyCard;
-                                                defender = card;
-                                            }
-
-                                            // Calculate attack and defense stats
-                                            playerAttack = attacker.getStat();
-                                            enemyDefense = defender.getStat();
-                                            if (attacker == card) {
-                                                pn = new PhaseNode(enemyDefense, false, playerAttack, true);
-                                            } else {
-                                                pn = new PhaseNode(enemyDefense, true, playerAttack, false);
-                                            }
-
-
-                                            // Calculate damage and chip damage
-                                            int damage = (playerAttack + player.getAddedDamage() - enemyDefense);
+                                            //Give back mana and update max mana
+                                            int maxManaRegainAmount = 2;
+                                            player.replenishAndIncreaseMana(maxManaRegainAmount);
                                             player.setAddedDamage(0);
 
-                                            if (damage > 0) {
-                                                System.out.println("Damage dealt: " + damage);
-                                                if (attacker == card) {
-                                                    // Player attacked, so enemy takes damage
-                                                    enemy.setHp(enemy.getHp() - damage);
-                                                    System.out.println("Enemy takes " + damage + " damage.");
-                                                } else {
-                                                    // Enemy attacked, so player takes damage
-                                                    player.setHp(player.getHp() - damage);
-                                                    System.out.println("Player takes " + damage + " damage.");
-                                                }
-                                            } else {
-                                                System.out.println("No damage dealt.");
-                                            }
-
-                                            //Animation
-                                            pn.setLayoutX(scene.getWidth()/2 - pn.getMaxWidth()/3);
-                                            pn.setLayoutY(scene.getHeight()/2 - pn.getMaxHeight()/2);
-                                            grupp.getChildren().add(pn);
-
-                                            for (Card c : player.getPlayedCards()) {
-                                                c.setAnimationPlaying(true);
-                                            }
-                                            pn.startTimer(grupp, player, scene, player.getPlayedCards());
+                                            enablePlayerTurn(player);
                                         }
-
-                                        //Deal with removing the cards
-                                        playerGrid.getChildren().remove(card.getGroup());
-                                        player.getPlayedCards().remove(card);
-                                        grupp.getChildren().remove(card.getGroup());
-
-                                        enemyGrid.getChildren().remove(enemyCard.getGroup());
-                                        enemy.getPlayedCards().remove(enemyCard);
-                                        grupp.getChildren().remove(enemyCard.getGroup());
-
                                     }
-
-                                    //Check if the grid is now empty, attackPhase is over
-                                    if (player.getPlayedCards().isEmpty() && enemy.getPlayedCards().isEmpty()) {
-                                        isAttackPhase = false;
-                                        playerPlacedCards = false;
-                                        enemyPlacedCards = false;
-                                        System.out.println("Switching back to placement phase.");
-
-                                        //Do the after-attack-phase cleanup (eg. clear lists, give mana, give new cards)
-                                        player.getPlayedCards().clear();
-                                        enemy.getPlayedCards().clear();
-
-                                        //Give back missing cards
-                                        player.generateRandomHand();
-                                        player.giveCardFunctionality(grupp, scene, player);
-
-                                        //Give back mana and update max mana
-                                        int maxManaRegainAmount = 2;
-                                        player.replenishAndIncreaseMana(maxManaRegainAmount);
-                                        player.setAddedDamage(0);
-
-                                        enablePlayerTurn(player);
-                                    }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
                 }
