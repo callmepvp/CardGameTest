@@ -27,6 +27,10 @@ public class Player {
     private int addedDamage = 0;
     private int maxMana = 4;
 
+    private int attackCardsPlayedByPlayer = 0;
+    private int damageDoneByPlayer = 0;
+    private int defenseCardsPlayedByPlayer = 0;
+
     public Player(int hp, int energy) {
         this.hp = new SimpleIntegerProperty(hp);
         this.energy = new SimpleIntegerProperty(energy);
@@ -89,6 +93,27 @@ public class Player {
 
     public List<Card> getPlayedCards() {
         return playedCards;
+    }
+
+    public void updateDamageStat(int damage){
+        damageDoneByPlayer+=damage;
+        attackCardsPlayedByPlayer+=1;
+    }
+
+    public void updateDefenseCardsPlayedByPlayer() {
+        this.defenseCardsPlayedByPlayer += 1;
+    }
+
+    public int getAttackCardsPlayedByPlayer() {
+        return attackCardsPlayedByPlayer;
+    }
+
+    public int getDamageDoneByPlayer() {
+        return damageDoneByPlayer;
+    }
+
+    public int getDefenseCardsPlayedByPlayer() {
+        return defenseCardsPlayedByPlayer;
     }
 
     public void replenishAndIncreaseMana(int toAdd) {
