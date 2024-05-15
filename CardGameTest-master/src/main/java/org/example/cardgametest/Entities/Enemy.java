@@ -7,7 +7,7 @@ import javafx.scene.layout.GridPane;
 import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
-import org.example.cardgametest.Effects.Party_time;
+
 
 import java.util.*;
 
@@ -141,12 +141,7 @@ public class Enemy {
 
         // Return the card with the highest weight
         System.out.println("[BOT] Found card " + Objects.requireNonNull(bestCard).getName() + " with a weight of " + highestWeight);
-        if (!bestCard.getEffect().equals("No effect")) {
-            if (bestCard.getEffect().equals("Party time!")) {
-                Party_time partyTime = new Party_time("Party time!", scene);
-                partyTime.cardeffect();
-            }
-        }
+
         return bestCard;
     }
 }

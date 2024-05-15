@@ -28,7 +28,8 @@ import org.example.cardgametest.Card.Card;
 import org.example.cardgametest.Card.attackCard;
 import org.example.cardgametest.Card.defenseCard;
 import org.example.cardgametest.Effects.Hardened;
-import org.example.cardgametest.Effects.Party_time;
+
+import org.example.cardgametest.Effects.Sharpened;
 import org.example.cardgametest.Effects.effect;
 import org.example.cardgametest.Entities.Enemy;
 import org.example.cardgametest.Entities.Player;
@@ -98,7 +99,7 @@ public class HelloApplication extends Application {
         List<effect> AttackEffects = new ArrayList<>();
         //AttackEffects.add()
         List<effect> DefenseEffects = new ArrayList<>();
-        AttackEffects.add(new Party_time("Party time!", scene));
+        AttackEffects.add(new Sharpened("Sharpened(+2)"));
         DefenseEffects.add(new Hardened("Hardened(+2)"));
 
         List<String> ründenimed = new ArrayList<>();
@@ -415,9 +416,8 @@ public class HelloApplication extends Application {
                                         int enemyAttack = enemyCard.getStat();
 
                                         if (!card.getEffect().equals("No effect")) {
-                                            if (card.getEffect().equals("Party time!")) {
-                                                Party_time partyTime = new Party_time("Party time!", scene);
-                                                partyTime.cardeffect();
+                                            if (card.getEffect().equals("Sharpened(+2)")) {
+                                                playerAttack +=2;
                                             }
                                         }
 
@@ -434,10 +434,7 @@ public class HelloApplication extends Application {
                                         int enemyDefense = enemyCard.getStat();
 
                                         if (!card.getEffect().equals("No effect")) {
-                                            if (card.getEffect().equals("Party time!")) {
-                                                Party_time partyTime = new Party_time("Party time!", scene);
-                                                partyTime.cardeffect();
-                                            } if (card.getEffect().equals("Hardened(+2)")){
+                                             if (card.getEffect().equals("Hardened(+2)")){
                                                 playerDefense += 2;
                                             }
                                         }
@@ -465,12 +462,6 @@ public class HelloApplication extends Application {
                                             attacker = enemyCard;
                                             defender = card;
                                         }
-                                        if (!card.getEffect().equals("No effect")) {
-                                            if (card.getEffect().equals("Party time!")) {
-                                                Party_time partyTime = new Party_time("Party time!", scene);
-                                                partyTime.cardeffect();
-                                            }
-                                        }
 
                                         // Calculate attack and defense stats
                                         playerAttack = attacker.getStat();
@@ -487,12 +478,17 @@ public class HelloApplication extends Application {
                                                 if (enemyCard.getEffect().equals("Hardened(+2)")){
                                                     damage -= 2;
                                                 }
+                                                if (card.getEffect().equals("Sharpened(+2)")) {
+                                                    damage += 2;
+                                                }
                                                 enemy.setHp(enemy.getHp() - damage);
                                                 System.out.println("Enemy takes " + damage + " damage.");
                                             } else {
                                                 // Enemy attacked, so player takes damage
                                                 if (card.getEffect().equals("Hardened(+2)")){
                                                     damage -= 2;
+                                                } if (enemyCard.getEffect().equals("Sharpened(+2)")) {
+                                                    damage += 2;
                                                 }
                                                 player.setHp(player.getHp() - damage);
                                                 System.out.println("Player takes " + damage + " damage.");
