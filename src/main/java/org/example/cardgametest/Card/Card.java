@@ -44,7 +44,7 @@ public abstract class Card {
         this.colour= colour;
         //Setup the card
         Rectangle rectangle = new Rectangle(0, 0, 150, 200);
-        rectangle.setFill(Color.WHITE);
+        rectangle.setFill(this.colour);
         rectangle.setStroke(Color.BLACK);
 
         Text nameText = new Text(name);
